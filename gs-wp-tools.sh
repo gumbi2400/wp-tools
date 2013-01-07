@@ -77,7 +77,7 @@ function SUBMENU {
     #set up prompt and the list to chose from
     OPS3=$PS3 #save the old prompt
     PS3='Choose action: '
-    
+    action_select=""
     option_list="check database connection,check WordPress version,Done"
     OIFS=$IFS #save the current IFS (Internal Field Separator)
     IFS=',' #Create a new IFS for multi-word options! 
