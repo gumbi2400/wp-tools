@@ -104,7 +104,6 @@ dbname_test=`mysql -h$dbhost -u$dbuser -p$dbpass -e "show databases;" |grep  $db
 break
 }        
 # The WPVERCHECK function just checks the WordPress version                
-############# Currently not setting $wp__version properly ############
 function WPVERCHECK {
     #set up $wp_version to be the version number and tell it to the user
     wp_version=`grep "wp_version =" $working_wp/wp-includes/version.php |awk -F"'" '{print $2}'`
