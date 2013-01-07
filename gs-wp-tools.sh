@@ -38,7 +38,7 @@ break
 ############# Currently not setting $wp__version properly ############
 function WPVERCHECK {
     #set up $wp_version to be the version number and tell it to the user
-    wp_version=`grep "wp_version=" $working_wp/wp-includes/version.php |awk -F"'" '{print $2}'`
+    wp_version=`grep "wp_version =" $working_wp/wp-includes/version.php |awk -F"'" '{print $2}'`
     echo "The WordPress version for the installation at $working_wp is $wp_version"
     break
 }
