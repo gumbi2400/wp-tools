@@ -83,9 +83,6 @@ dbpass=`cat $working_wp/wp-config.php|grep DB_PASS |awk -F "'" '{print $4}'`
 echo "
 Database password is $dbpass
 "
-echo "
-setting up dbname
-"
 dbname=`cat $working_wp/wp-config.php|grep DB_NAME |awk -F "'" '{print $4}'`
 echo "
 Database name is $dbname
@@ -96,13 +93,11 @@ echo '
 Testing the database connection.
 '
 dbname_test=`mysql -h$dbhost -u$dbuser -p$dbpass -e "show databases;" |grep  $dbname`
-    
-#now see if the database names match, or if it's even there
-echo '
-Testing the database connection.
-'
+    	
+	#now see if the database names match, or if it's even there
 	if [ "$dbname_test" = "$dbname" ]; then
-		echo 'The database name in the wp-config.php is valid and connection to database was successful.'
+		echo 'The database name in the wp-config.php is valid and connection to database was successful.
+'
 	else
 		echo 'It looks like the database name in the wp.config.php is not valid'
     fi
@@ -116,5 +111,6 @@ function WPVERCHECK {
     echo "The WordPress version for the installation at $working_wp is $wp_version"
     break
 }
-#Right, now lets actually execute some of those functions!
+
+#Right, now lets actually start things off!
 HOME_MENU
