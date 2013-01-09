@@ -36,6 +36,14 @@ done    #end the "until" statement
 function SUBMENU {
 echo "You are currently working with the WordPress installation at $working_wp"
 #set up prompt and the list to chose from
+echo 'Setting up variables.
+'
+# Set up database variables for later use
+dbhost="internal-db.s$siteid.gridserver.com"
+dbuser=`cat $working_wp/wp-config.php|grep DB_USER |awk -F "'" '{print $4}'`
+dbpass=`cat $working_wp/wp-config.php|grep DB_PASS |awk -F "'" '{print $4}'`
+dbname=`cat $working_wp/wp-config.php|grep DB_NAME |awk -F "'" '{print $4}'`
+
 OPS3=$PS3 #save the old prompt
 PS3='Choose action: '
 action_select=""	#Clean up the old $action_select variables
@@ -56,8 +64,13 @@ until [ "$action_select" == "Done" ]; do
 
     elif [ "$action_select" = "Done" ]; then
 		echo "Returning to Main Menu"
+		# Clean up variables 
 		IFS=$OIFS
 		PS3=$OPS3
+		dbhost=""
+		dbuser=""
+		dbpass=""
+		dbname=""
 		break    
 
 	else 
@@ -70,20 +83,15 @@ done
 
 #The WPDBCHECK function checks the connection to the WordPress database 
 function WPDBCHECK {
-#set up temporary variables to work with MySQL
-dbhost="internal-db.s$siteid.gridserver.com"
 echo "
 Database host is $dbhost
 "
-dbuser=`cat $working_wp/wp-config.php|grep DB_USER |awk -F "'" '{print $4}'`
 echo "
 Database user is $dbuser
 "
-dbpass=`cat $working_wp/wp-config.php|grep DB_PASS |awk -F "'" '{print $4}'`
 echo "
 Database password is $dbpass
 "
-dbname=`cat $working_wp/wp-config.php|grep DB_NAME |awk -F "'" '{print $4}'`
 echo "
 Database name is $dbname
 "
@@ -93,13 +101,11 @@ echo '
 Testing the database connection.
 '
 dbname_test=`mysql -h$dbhost -u$dbuser -p$dbpass -e "show databases;" |grep  $dbname`
-    	
-	#now see if the database names match, or if it's even there
 	if [ "$dbname_test" = "$dbname" ]; then
-		echo 'The database name in the wp-config.php is valid and connection to database was successful.
+		echo 'The database name in the wp-config.php is valid and connection to database was successful. If you still cannot connect, you may want to check the database host name
 '
 	else
-		echo 'It looks like the database name in the wp.config.php is not valid'
+		echo 'It looks like the database name in the wp.config.php is not valid, or the connection was not successful'
     fi
 break
 }        
