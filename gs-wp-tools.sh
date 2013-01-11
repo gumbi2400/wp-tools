@@ -50,11 +50,11 @@ function SUBMENU {
     dbuser=`cat $working_wp/wp-config.php|grep DB_USER |awk -F "'" '{print $4}'`
     dbpass=`cat $working_wp/wp-config.php|grep DB_PASS |awk -F "'" '{print $4}'`
     dbname=`cat $working_wp/wp-config.php|grep DB_NAME |awk -F "'" '{print $4}'`
-
+    dbprefix=`cat $working_wp/wp-config.php |grep table_prefix |awk -F"'" '{print $2}'`
     OPS3=$PS3 #save the old prompt
     PS3='Choose action: '
     action_select=""	#Clean up the old $action_select variables
-    option_list="check database connection,check WordPress version,Done"	#Set up the option list
+    option_list="check database connection,check WordPress version,disable plugins,enable plugins,Done"	#Set up the option list
     OIFS=$IFS #save the current IFS (Internal Field Separator)
     IFS=',' #Create a new IFS for multi-word options! 
 
@@ -64,10 +64,16 @@ function SUBMENU {
         select action_select in $option_list; do
         
         if [ "$action_select" = "check database connection" ]; then
-            WPDBCHECK
+		WPDBCHECK
             
         elif [ "$action_select" = "check WordPress version" ]; then
-            WPVERCHECK
+		WPVERCHECK
+
+        elif [ "$action_select" = "disable plugins" ]; then
+                DISABLEPLUGIN
+
+        elif [ "$action_select" = "enable plugins" ]; then
+		ENABLEPLUGIN
 
         elif [ "$action_select" = "Done" ]; then
             echo "Returning to Main Menu"
@@ -78,6 +84,8 @@ function SUBMENU {
             dbuser=""
             dbpass=""
             dbname=""
+            dbprefix=""
+            #rm plugin_list.tmp commented out till ENABLEPLUGIN works
             break    
 
         else 
@@ -121,6 +129,41 @@ function WPVERCHECK {
     wp_version=`grep "wp_version =" $working_wp/wp-includes/version.php |awk -F"'" '{print $2}'`
     echo "The WordPress version for the installation at $working_wp is $wp_version"
     break
+}
+#The DISABLEPLUGIN function does just that... disable plugins
+
+function DISABLEPLUGIN {
+
+#Step one is to save the currently enabled plugins
+#$plugin_list=`mysql -h$dbhost -u$dbuser -p$dbpass -e"SELECT option_value FROM `echo $dbname.$dbprefix`options WHERE option_name='active_plugins';" -B --skip-column-names > plugin_list.tmp`
+
+echo "The current plugin list is:
+`cat plugin_list.tmp`
+"
+echo "plugin_list is $plugin_list"
+# Now that we have backed up these plugins, lets nuke em and see if it fixes it
+echo "Removing active plugins.
+"
+#commented out the output file until the restore portion works
+mysql -h$dbhost -u$dbuser -p$dbpass -e"UPDATE `echo $dbname.$dbprefix`options SET option_value ='a:0:{}' WHERE option_name ='active_plugins';" # >  plugin_list.tmp
+
+echo "Active plugins disabled"
+
+break
+}
+
+# ENABLEPLUGIN enables plugins!
+
+function ENABLEPLUGIN {
+echo "Re-enabling plugins
+"
+echo "Plugin list is:
+`cat plugin_list.tmp`
+"
+mysql -h$dbhost -u$dbuser -p$dbpass -e"UPDATE `echo $dbname.$dbprefix`options SET option_value ='`cat plugin_list.tmp`' WHERE option_name ='active_plugins';"
+
+break
+
 }
 
 #Right, now lets actually start things off!
