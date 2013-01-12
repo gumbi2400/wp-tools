@@ -134,18 +134,11 @@ function WPVERCHECK {
 
 function DISABLEPLUGIN {
 
-#Step one is to save the currently enabled plugins
-#$plugin_list=`mysql -h$dbhost -u$dbuser -p$dbpass -e"SELECT option_value FROM `echo $dbname.$dbprefix`options WHERE option_name='active_plugins';" -B --skip-column-names > plugin_list.tmp`
+echo "Disabling active plugins
+"
 
-echo "The current plugin list is:
-`cat plugin_list.tmp`
-"
-echo "plugin_list is $plugin_list"
-# Now that we have backed up these plugins, lets nuke em and see if it fixes it
-echo "Removing active plugins.
-"
-#commented out the output file until the restore portion works
-mysql -h$dbhost -u$dbuser -p$dbpass -e"UPDATE `echo $dbname.$dbprefix`options SET option_value ='a:0:{}' WHERE option_name ='active_plugins';" # >  plugin_list.tmp
+# Just rename active_plugins to something else to disable them temporarily
+mysql -h$dbhost -u$dbuser -p$dbpass -e"UPDATE `echo $dbname.$dbprefix`options SET option_name=\"mt_disabled_plugins\" WHERE option_name=\"active_plugins\";"
 
 echo "Active plugins disabled"
 
@@ -157,10 +150,10 @@ break
 function ENABLEPLUGIN {
 echo "Re-enabling plugins
 "
-echo "Plugin list is:
-`cat plugin_list.tmp`
+
+mysql -h$dbhost -u$dbuser -p$dbpass -e"UPDATE `echo $dbname.$dbprefix`options SET option_name=\"active_plugins\" WHERE option_name=\"mt_disabled_plugins\";"
+echo "Plugins re-enabled
 "
-mysql -h$dbhost -u$dbuser -p$dbpass -e"UPDATE `echo $dbname.$dbprefix`options SET option_value ='`cat plugin_list.tmp`' WHERE option_name ='active_plugins';"
 
 break
 
