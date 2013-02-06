@@ -34,8 +34,8 @@ until [ "$working_wp" == "Done" ]; do
 		else
 			echo  "Invalid Selection"
 		fi
-        done  #end the selection
-done    #end the "until" statement
+        done  
+done    
 }
 
 #The SUBMENU function creates the sub menu
